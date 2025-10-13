@@ -32,13 +32,13 @@ const userSchema = new mongoose.Schema(
             unique: true,
             index: true,
         },
-        avtar: {
+        avatar: {
             type: String,  // cloudinary url
             required: true,
         },
         coverImage: {
-            type: String,  //// cloudinary url
-            unique: true,
+            type: String,  // cloudinary url
+
 
         },
         watchHistory: [
@@ -53,19 +53,19 @@ const userSchema = new mongoose.Schema(
     }, { timestamps: true }
 );
 
+// convert password in hashing form 
 userSchema.pre("save", async function (next) {  // work like middleware
     if (!this.isModified("password")) return next()
     this.password = await bcrypt.hash(this.password, 10)
     next()
 })
 
-// check password
-// coustom method
+// coustom method for check password
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password)
 }
 
-// Generate Access Token
+// Generate Access Token using coustom method
 userSchema.methods.generateAccessToken = function () {
     jwt.sign(
         {
@@ -81,17 +81,18 @@ userSchema.methods.generateAccessToken = function () {
         }
     )
 }
-// Generate Refresh Token
+// Generate Refresh Token using coustom method
 userSchema.methods.generateRefreshToken = function () {
     jwt.sign(
         {
             // payload
             _id: this._id,
-
         },
+        // secret key
         process.env.REFRESH_TOKEN_SECRET,
         {
-            expiresIn: process.env.REFRESH_TOKEN_EXPIRY,
+            // expires
+            expiresIn: process.env.REFRESH_TOKEN_EXPIRY
         }
     )
 }
