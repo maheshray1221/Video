@@ -4,6 +4,7 @@ import { User } from "../models/user.model.js"
 import { uploadOnCloudinary } from "../utils/Cloudinary.js"
 import { ApiResponse } from "../utils/ApiResponse.js"
 import jwt from "jsonwebtoken";
+import { deleteOldImage } from "../utils/DeleteOldImage.js";
 
 // helper function
 const generateAccesseAndRefreshToken = async (userId) => {
@@ -227,12 +228,13 @@ const changeCurrentPassword = asyncHandler(async () => {
             "Password changed successfully"))
 })
 
-const getCurrentUser = asyncHandler(async () => {
+const getCurrentUser = asyncHandler(async (req, res) => {
     return res
         .status(200)
-        .json(200,
+        .json(new ApiResponse(
+            200,
             req.user,
-            "current user fetched successfully")
+            "current user fetched successfully"))
 })
 
 const updateAccountDetails = asyncHandler(async (req, res) => {
@@ -281,6 +283,11 @@ const updateUserAvatar = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password")
 
+    const deleteAvatar = await deleteOldImage(req.user.avatar)
+
+    if (!deleteAvatar) {
+        throw new ApiError(401,"Error while deleting Avatar")
+    }
     return res
         .status(200)
         .json(new ApiResponse(200, { user }, "update avatar successfully"))
@@ -308,10 +315,18 @@ const updateUserCoverImage = asyncHandler(async (req, res) => {
         { new: true }
     ).select("-password")
 
+    const deleteCoverImg = await deleteOldImage(req.user.coverImage)
+
+    if (!deleteCoverImg) {
+        throw new ApiError(401,"Error while deleting CoverImage")
+    }
+
     return res
         .status(200)
         .json(new ApiResponse(200, { user }, "update coverImage successfully"))
 })
+
+
 export {
     registerUser,
     loginUser,

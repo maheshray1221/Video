@@ -1,6 +1,6 @@
 // v2 as cloudinary iska matlb v2 ka name change hoke cloudinary ha gya
 import dotenv from 'dotenv';
-dotenv.config( {path:'./.env' });
+dotenv.config({ path: './.env' });
 import { v2 as cloudinary } from 'cloudinary';
 import fs from "fs";
 
@@ -20,8 +20,13 @@ const uploadOnCloudinary = async (localfilePath) => {
         const response = await cloudinary.uploader.upload(localfilePath, {
             resource_type: "auto" // khud hi detact kro kya type hai
         })
+        // set public_id for backend
+        public_id = response.public_id
+        // secure_url for frontend
+        url = response.secure_url
+
         //file has been upload successfully
-        fs.unlinkSync(localfilePath)  
+        fs.unlinkSync(localfilePath)
         return response;
     } catch (err) {
         fs.unlinkSync(localfilePath)
