@@ -3,7 +3,15 @@ import {
     loginUser,
     logoutUser,
     registerUser,
-    refreshAccessToken
+    refreshAccessToken,
+    changeCurrentPassword,
+    getCurrentUser,
+    updateAccountDetails,
+    updateUserAvatar,
+    updateUserCoverImage,
+    getUserChanalProfile,
+    getWatchHistory,
+
 } from "../controllers/user.controller.js"
 
 import { upload } from "../middlewares/multer.middleaware.js"
@@ -29,6 +37,27 @@ router.route("/login").post(loginUser)
 
 // secured route
 router.route("/logout").post(verifyJWT, logoutUser)
+
 router.route("/refresh-token").post(refreshAccessToken)
+
+router.route("/change-password").post(verifyJWT, changeCurrentPassword)
+
+router.route("/current-user").get(verifyJWT, getCurrentUser)
+
+router.route("/update-account").patch(verifyJWT, updateAccountDetails)
+// jwt check then multer check then update
+
+router.route("/update-avatar").patch(verifyJWT, upload.single("avatar"), updateUserAvatar)
+// jwt check then multer check then update
+
+router.route("/update-coverimage").patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage)
+//get user channel profile
+
+router.route("/channel/:userName").get(verifyJWT, getUserChanalProfile)
+
+// get watch history
+router.route("/watch-history").get(verifyJWT, getWatchHistory)
+
+
 
 export default router
